@@ -14,28 +14,7 @@ body{
     text-align:center;
     color:white;
     background:linear-gradient(160deg,#ff4e8b,#ff99c8);
-    overflow:hidden;
-}
-
-/* Botón música */
-#musicControl{
-    position:fixed;
-    top:15px;
-    right:15px;
-    z-index:20;
-    padding:10px 15px;
-    border:none;
-    border-radius:25px;
-    background:white;
-    color:#ff4e8b;
-    font-weight:bold;
-    animation:pulse 1.5s infinite;
-}
-
-@keyframes pulse{
-    0%{transform:scale(1);}
-    50%{transform:scale(1.1);}
-    100%{transform:scale(1);}
+    overflow-x:hidden;
 }
 
 .container{
@@ -46,6 +25,9 @@ body{
     align-items:center;
     padding:20px;
 }
+
+h1{font-size:1.8em;}
+h2{font-size:1.3em;}
 
 button{
     width:80%;
@@ -97,19 +79,19 @@ canvas{
     pointer-events:none;
     z-index:-1;
 }
+
+/* Música abajo */
+#musicContainer{
+    position:fixed;
+    bottom:20px;
+    left:50%;
+    transform:translateX(-50%);
+    z-index:20;
+    text-align:center;
+}
 </style>
 </head>
 <body>
-
-<!-- Música oculta -->
-<iframe id="musicPlayer"
-width="0"
-height="0"
-src="https://www.youtube.com/embed/CFPLIaMpGrY?enablejsapi=1"
-allow="autoplay">
-</iframe>
-
-<button id="musicControl">🎵 Play</button>
 
 <canvas id="fireworks"></canvas>
 
@@ -139,19 +121,36 @@ Te amo infinitamente.
 </div>
 </div>
 
+<!-- Música -->
+<div id="musicContainer">
+    
+    <iframe id="musicPlayer"
+    width="250"
+    height="140"
+    style="border-radius:15px; display:none;"
+    src=""
+    allow="autoplay">
+    </iframe>
+
+    <br>
+
+    <button id="musicBtn"
+    style="margin-top:10px;padding:12px 25px;
+    border:none;border-radius:25px;
+    background:white;color:#ff4e8b;font-weight:bold;">
+    🎵 Reproducir música
+    </button>
+</div>
+
 <script>
 const noBtn=document.getElementById("no");
 const yesBtn=document.getElementById("yes");
 const main=document.getElementById("main");
 const respuesta=document.getElementById("respuesta");
 const carta=document.getElementById("carta");
-const musicBtn=document.getElementById("musicControl");
-const player=document.getElementById("musicPlayer");
-
-let scale=1;
-let musicPlaying=false;
 
 /* Botón No imposible */
+let scale=1;
 function moverBoton(){
     const x=Math.random()*(window.innerWidth-120);
     const y=Math.random()*(window.innerHeight-60);
@@ -174,25 +173,7 @@ yesBtn.addEventListener("click",()=>{
         navigator.vibrate([200,100,200,100,400]);
     }
 
-    iniciarMusica();
     lanzarFuegos();
-});
-
-/* Música */
-function iniciarMusica(){
-    player.src="https://www.youtube.com/embed/CFPLIaMpGrY?autoplay=1&loop=1&playlist=CFPLIaMpGrY";
-    musicBtn.innerText="⏸ Pausa";
-    musicPlaying=true;
-}
-
-musicBtn.addEventListener("click",()=>{
-    if(!musicPlaying){
-        iniciarMusica();
-    }else{
-        player.src="";
-        musicBtn.innerText="🎵 Play";
-        musicPlaying=false;
-    }
 });
 
 /* Carta */
@@ -252,6 +233,25 @@ function lanzarFuegos(){
         ctx.fill();
     }
 }
+
+/* Música */
+const musicBtn=document.getElementById("musicBtn");
+const player=document.getElementById("musicPlayer");
+let musicOn=false;
+
+musicBtn.addEventListener("click",function(){
+    if(!musicOn){
+        player.style.display="block";
+        player.src="https://www.youtube.com/embed/CFPLIaMpGrY?autoplay=1&loop=1&playlist=CFPLIaMpGrY";
+        musicBtn.innerText="⏸ Detener música";
+        musicOn=true;
+    }else{
+        player.src="";
+        player.style.display="none";
+        musicBtn.innerText="🎵 Reproducir música";
+        musicOn=false;
+    }
+});
 </script>
 
 </body>
