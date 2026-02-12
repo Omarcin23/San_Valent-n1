@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mi Niña Preciosa ❤️</title>
+
+<style>
+*{box-sizing:border-box;}
+
+body{
+    margin:0;
+    font-family:'Segoe UI',sans-serif;
+    text-align:center;
+    color:white;
+    background:linear-gradient(160deg,#ff4e8b,#ff99c8);
+    overflow:hidden;
+}
+
+.video-bg{
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    z-index:-2;
+    filter:brightness(0.4);
+    pointer-events:none;
+}
+
+.container{
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    padding:20px;
+}
+
+h1{font-size:1.8em;}
+h2{font-size:1.3em;}
+
+button{
+    width:80%;
+    max-width:300px;
+    padding:15px;
+    font-size:1.1em;
+    border:none;
+    border-radius:30px;
+    margin:8px;
+}
+
+#yes{background:white;color:#ff4e8b;}
+#no{background:#ff1e56;color:white;position:absolute;}
+
+img{
+    width:80%;
+    max-width:250px;
+    border-radius:20px;
+    margin-top:10px;
+    box-shadow:0 0 20px rgba(255,255,255,0.8);
+}
+
+/* Carta */
+.carta{
+    max-width:300px;
+    background:white;
+    color:#ff4e8b;
+    padding:15px;
+    border-radius:15px;
+    margin-top:15px;
+    display:none;
+    animation:fadeIn 1s;
+}
+
+/* Corazones */
+.heart{
+    position:absolute;
+    animation:float 5s linear infinite;
+}
+
+@keyframes float{
+    0%{transform:translateY(100vh);opacity:1;}
+    100%{transform:translateY(-10vh);opacity:0;}
+}
+
+@keyframes fadeIn{
+    from{opacity:0;}
+    to{opacity:1;}
+}
+
+.hidden{display:none;}
+
+canvas{
+    position:fixed;
+    top:0;
+    left:0;
+    pointer-events:none;
+    z-index:-1;
+}
+</style>
+</head>
+<body>
+
+<!-- Música -->
+<iframe class="video-bg"
+src="https://www.youtube.com/embed/CFPLIaMpGrY?autoplay=1&loop=1&playlist=CFPLIaMpGrY"
+allow="autoplay">
+</iframe>
+
+<canvas id="fireworks"></canvas>
+
+<div class="container" id="main">
+<h1>Mi niña preciosa ❤️</h1>
+
+<h2 id="contador"></h2>
+
+<p>Se acerca un día muy especial...</p>
+<h2>¿Quieres ser mi San Valentín? 💘</h2>
+
+<button id="yes">Sí mi amor 💕</button>
+<button id="no">No 😢</button>
+
+<input type="file" id="fotoInput" accept="image/*">
+<img id="preview" src="" style="display:none;">
+</div>
+
+<div class="container hidden" id="respuesta">
+<h1>Gracias mi amor 💖</h1>
+<h2>Ahora vamos a comer broaster 🍗😍</h2>
+
+<button onclick="mostrarCarta()">Leer carta 💌</button>
+
+<div class="carta" id="carta">
+Eres la persona más especial de mi vida.  
+Gracias por hacer mis días más felices.  
+Este 14 de febrero quiero seguir creando recuerdos contigo.  
+Te amo infinitamente ❤️
+</div>
+</div>
+
+<script>
+const noBtn=document.getElementById("no");
+const yesBtn=document.getElementById("yes");
+const main=document.getElementById("main");
+const respuesta=document.getElementById("respuesta");
+const carta=document.getElementById("carta");
+
+let scale=1;
+
+function moverBoton(){
+    const x=Math.random()*(window.innerWidth-120);
+    const y=Math.random()*(window.innerHeight-60);
+    noBtn.style.left=x+"px";
+    noBtn.style.top=y+"px";
+    scale-=0.08;
+    if(scale>0.3){
+        noBtn.style.transform="scale("+scale+")";
+    }
+}
+noBtn.addEventListener("touchstart",moverBoton);
+noBtn.addEventListener("mouseover",moverBoton);
+
+yesBtn.addEventListener("click",()=>{
+    main.classList.add("hidden");
+    respuesta.classList.remove("hidden");
+
+    // Vibración
+    if(navigator.vibrate){
+        navigator.vibrate([200,100,200,100,400]);
+    }
+
+    lanzarFuegos();
+});
+
+// Carta
+function mostrarCarta(){
+    carta.style.display="block";
+}
+
+// Contador 14 febrero
+function actualizarContador(){
+    const hoy=new Date();
+    let anio=hoy.getFullYear();
+    const sanValentin=new Date(anio,1,14);
+    if(hoy>sanValentin){
+        sanValentin.setFullYear(anio+1);
+    }
+    const diff=sanValentin-hoy;
+    const dias=Math.floor(diff/(1000*60*60*24));
+    document.getElementById("contador").innerText=
+    "Faltan "+dias+" días para el 14 de febrero 💖";
+}
+actualizarContador();
+
+// Corazones
+function crearCorazon(){
+    const heart=document.createElement("div");
+    heart.classList.add("heart");
+    heart.innerHTML="💖";
+    heart.style.left=Math.random()*100+"vw";
+    heart.style.fontSize=(Math.random()*20+15)+"px";
+    document.body.appendChild(heart);
+    setTimeout(()=>{heart.remove()},5000);
+}
+setInterval(crearCorazon,700);
+
+// Subir foto
+document.getElementById("fotoInput").addEventListener("change",function(e){
+    const reader=new FileReader();
+    reader.onload=function(){
+        const img=document.getElementById("preview");
+        img.src=reader.result;
+        img.style.display="block";
+    }
+    reader.readAsDataURL(e.target.files[0]);
+});
+
+// Fuegos artificiales simples
+const canvas=document.getElementById("fireworks");
+const ctx=canvas.getContext("2d");
+canvas.width=window.innerWidth;
+canvas.height=window.innerHeight;
+
+function lanzarFuegos(){
+    for(let i=0;i<20;i++){
+        const x=Math.random()*canvas.width;
+        const y=Math.random()*canvas.height/2;
+        ctx.fillStyle="white";
+        ctx.beginPath();
+        ctx.arc(x,y,5,0,Math.PI*2);
+        ctx.fill();
+    }
+}
+</script>
+
+</body>
+</html>
