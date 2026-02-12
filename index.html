@@ -17,15 +17,25 @@ body{
     overflow:hidden;
 }
 
-.video-bg{
+/* Botón música */
+#musicControl{
     position:fixed;
-    top:0;
-    left:0;
-    width:100%;
-    height:100%;
-    z-index:-2;
-    filter:brightness(0.4);
-    pointer-events:none;
+    top:15px;
+    right:15px;
+    z-index:20;
+    padding:10px 15px;
+    border:none;
+    border-radius:25px;
+    background:white;
+    color:#ff4e8b;
+    font-weight:bold;
+    animation:pulse 1.5s infinite;
+}
+
+@keyframes pulse{
+    0%{transform:scale(1);}
+    50%{transform:scale(1.1);}
+    100%{transform:scale(1);}
 }
 
 .container{
@@ -36,9 +46,6 @@ body{
     align-items:center;
     padding:20px;
 }
-
-h1{font-size:1.8em;}
-h2{font-size:1.3em;}
 
 button{
     width:80%;
@@ -61,7 +68,6 @@ img{
     box-shadow:0 0 20px rgba(255,255,255,0.8);
 }
 
-/* Carta */
 .carta{
     max-width:300px;
     background:white;
@@ -70,10 +76,8 @@ img{
     border-radius:15px;
     margin-top:15px;
     display:none;
-    animation:fadeIn 1s;
 }
 
-/* Corazones */
 .heart{
     position:absolute;
     animation:float 5s linear infinite;
@@ -82,11 +86,6 @@ img{
 @keyframes float{
     0%{transform:translateY(100vh);opacity:1;}
     100%{transform:translateY(-10vh);opacity:0;}
-}
-
-@keyframes fadeIn{
-    from{opacity:0;}
-    to{opacity:1;}
 }
 
 .hidden{display:none;}
@@ -102,19 +101,21 @@ canvas{
 </head>
 <body>
 
-<!-- Música -->
-<iframe class="video-bg"
-src="https://www.youtube.com/embed/CFPLIaMpGrY?autoplay=1&loop=1&playlist=CFPLIaMpGrY"
+<!-- Música oculta -->
+<iframe id="musicPlayer"
+width="0"
+height="0"
+src="https://www.youtube.com/embed/CFPLIaMpGrY?enablejsapi=1"
 allow="autoplay">
 </iframe>
+
+<button id="musicControl">🎵 Play</button>
 
 <canvas id="fireworks"></canvas>
 
 <div class="container" id="main">
 <h1>Mi niña preciosa ❤️</h1>
-
 <h2 id="contador"></h2>
-
 <p>Se acerca un día muy especial...</p>
 <h2>¿Quieres ser mi San Valentín? 💘</h2>
 
@@ -122,20 +123,19 @@ allow="autoplay">
 <button id="no">No 😢</button>
 
 <input type="file" id="fotoInput" accept="image/*">
-<img id="preview" src="" style="display:none;">
+<img id="preview" style="display:none;">
 </div>
 
 <div class="container hidden" id="respuesta">
 <h1>Gracias mi amor 💖</h1>
 <h2>Ahora vamos a comer broaster 🍗😍</h2>
-
 <button onclick="mostrarCarta()">Leer carta 💌</button>
 
 <div class="carta" id="carta">
-Eres la persona más especial de mi vida.  
-Gracias por hacer mis días más felices.  
-Este 14 de febrero quiero seguir creando recuerdos contigo.  
-Te amo infinitamente ❤️
+Eres lo mejor que me ha pasado.  
+Gracias por cada sonrisa.  
+Quiero celebrar este 14 contigo y muchos más ❤️  
+Te amo infinitamente.
 </div>
 </div>
 
@@ -145,9 +145,13 @@ const yesBtn=document.getElementById("yes");
 const main=document.getElementById("main");
 const respuesta=document.getElementById("respuesta");
 const carta=document.getElementById("carta");
+const musicBtn=document.getElementById("musicControl");
+const player=document.getElementById("musicPlayer");
 
 let scale=1;
+let musicPlaying=false;
 
+/* Botón No imposible */
 function moverBoton(){
     const x=Math.random()*(window.innerWidth-120);
     const y=Math.random()*(window.innerHeight-60);
@@ -161,39 +165,55 @@ function moverBoton(){
 noBtn.addEventListener("touchstart",moverBoton);
 noBtn.addEventListener("mouseover",moverBoton);
 
+/* Cuando dice sí */
 yesBtn.addEventListener("click",()=>{
     main.classList.add("hidden");
     respuesta.classList.remove("hidden");
 
-    // Vibración
     if(navigator.vibrate){
         navigator.vibrate([200,100,200,100,400]);
     }
 
+    iniciarMusica();
     lanzarFuegos();
 });
 
-// Carta
+/* Música */
+function iniciarMusica(){
+    player.src="https://www.youtube.com/embed/CFPLIaMpGrY?autoplay=1&loop=1&playlist=CFPLIaMpGrY";
+    musicBtn.innerText="⏸ Pausa";
+    musicPlaying=true;
+}
+
+musicBtn.addEventListener("click",()=>{
+    if(!musicPlaying){
+        iniciarMusica();
+    }else{
+        player.src="";
+        musicBtn.innerText="🎵 Play";
+        musicPlaying=false;
+    }
+});
+
+/* Carta */
 function mostrarCarta(){
     carta.style.display="block";
 }
 
-// Contador 14 febrero
+/* Contador */
 function actualizarContador(){
     const hoy=new Date();
     let anio=hoy.getFullYear();
-    const sanValentin=new Date(anio,1,14);
-    if(hoy>sanValentin){
-        sanValentin.setFullYear(anio+1);
-    }
-    const diff=sanValentin-hoy;
+    const fecha=new Date(anio,1,14);
+    if(hoy>fecha){fecha.setFullYear(anio+1);}
+    const diff=fecha-hoy;
     const dias=Math.floor(diff/(1000*60*60*24));
     document.getElementById("contador").innerText=
     "Faltan "+dias+" días para el 14 de febrero 💖";
 }
 actualizarContador();
 
-// Corazones
+/* Corazones */
 function crearCorazon(){
     const heart=document.createElement("div");
     heart.classList.add("heart");
@@ -205,7 +225,7 @@ function crearCorazon(){
 }
 setInterval(crearCorazon,700);
 
-// Subir foto
+/* Subir foto */
 document.getElementById("fotoInput").addEventListener("change",function(e){
     const reader=new FileReader();
     reader.onload=function(){
@@ -216,14 +236,14 @@ document.getElementById("fotoInput").addEventListener("change",function(e){
     reader.readAsDataURL(e.target.files[0]);
 });
 
-// Fuegos artificiales simples
+/* Fuegos artificiales */
 const canvas=document.getElementById("fireworks");
 const ctx=canvas.getContext("2d");
 canvas.width=window.innerWidth;
 canvas.height=window.innerHeight;
 
 function lanzarFuegos(){
-    for(let i=0;i<20;i++){
+    for(let i=0;i<25;i++){
         const x=Math.random()*canvas.width;
         const y=Math.random()*canvas.height/2;
         ctx.fillStyle="white";
@@ -236,3 +256,4 @@ function lanzarFuegos(){
 
 </body>
 </html>
+        
